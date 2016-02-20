@@ -36,6 +36,11 @@ int eval(){
         else if (op == LI) { ax = *(int *)ax; }
         else if (op == SC) { ax = *(char *)*sp++ = ax; }
         else if (op == SI) { *(int *)*sp++ = ax; }
+        else if (op == CALL) { *--sp = (int)(pc + 1); pc = (int *)*pc; }
+        else if (op == ENT) { *--sp = (int)bp; bp = sp; sp = sp - *pc++; }
+        else if (op == ADJ) { sp = sp + *pc++; }
+        else if (op == LEV) { sp = bp; bp = (int *)*sp++; pc = (int *)*sp++; }
+        else if (op == LEA) { ax = (int)(bp + *pc++); }
         else if (op == PUSH) {*--sp = ax; }
         else if (op == ADD) ax = *sp++ + ax; 
         else if (op == EXIT) {printf("exit(%d)", *sp); return *sp;}
