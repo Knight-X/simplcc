@@ -63,6 +63,25 @@ void next(){
             current_id[Hash] = hash;
             token = current_id[Token] = Id;
             return;
+        } else if (token >= '0' && token <= '9') {
+            token_val = token - '0';
+
+            if (token_val >= '0') {
+                while (*src >= '0' && *src <= '9') {
+                    token_val = token_val * 10 + *src++ - '0';
+                }
+            } else if (*src == 'x' || *src == 'X') { 
+                token = *src++;
+                while ((token >= '0' && token <= '9') || (token >= 'a' && token <= 'f') || (token >= 'A' && token <= 'F')) {
+                    token_val = token_val * 16 + (token & 15) + (token >= 'A' ? 9 : 0); // take個位數開始
+                    token = *++src;
+                }
+            } else {
+                while (*src >= '0' && *src <= '7') {
+                    token_val = token_val * 8 + *src++ - '0';
+                }
+            }
+
         }
     }
 
