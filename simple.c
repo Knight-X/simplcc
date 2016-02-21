@@ -42,6 +42,7 @@ int eval(){
         else if (op == LEV) { sp = bp; bp = (int *)*sp++; pc = (int *)*sp++; }
         else if (op == LEA) { ax = (int)(bp + *pc++); }
         else if (op == PUSH) {*--sp = ax; }
+        else if (op == JMP) {pc = (int *)*pc; }
         else if (op == OR) ax = *sp++ | ax;
         else if (op == XOR) ax = *sp++ ^ ax;
         else if (op == AND) ax = *sp++ & ax;
