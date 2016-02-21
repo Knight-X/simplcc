@@ -12,9 +12,60 @@ int *text,
     *stack;
 char *data;
 int *pc, *bp, *sp, ax, cycle;
+
+struct identifier {
+    int token;
+    int hash;
+    char *name;
+    int class;
+    int type;
+    int value;
+    int Bclass;
+    int Btype;
+    int Bvalue;
+}
+enum { Num = 128, Fun, Sys, Glo, Loc, Id, Char, Else, Enum, If, Int, Returu, Sizeof, While, Assign, Cond, Lor, Lan, Or, Xor, And, Eq, Ne, Lt, Gt, Le, Ge, Shl, Shr, Add, Sub, Mul, Div, Mod, Inc, Dec, Brak};
+
 enum { LEA, IMM, JMP, CALL, JZ, JNZ, ENT, ADJ, LEV, LI, LC, SI, SC, PUSH, OR, XOR, AND, EQ, NE, LT, GT, LE, GE, SHL, SHR, ADD, SUB, MUL, DIV, MOD, OPEN, READ, CLOS, PRTF, MALC, MSET, MCMP, EXIT};
+
+int token_val;
+int *current_id, *symbols;
+enum {Token, Hash, Name, Type, Class, Value, BType, BClass, BValue, IdSize};
+
 void next(){
-    token = *src++;
+    char *last_pos;
+    int hash;
+    while (token = *src){
+        ++src;
+        if (token == '\n') {
+            ++line;
+        } else if (token == '#'){
+            while (*src != 0 && *src != '\n') {
+                src++;
+            }
+        } else if ((token >= 'a' && token <= 'z') || (token >= 'A' && token <= 'Z') || (token == '_')) {
+            hash = token;
+            last_pos = src - 1;
+            while ((*src >= 'a' && *src <= 'z') || (*src >= 'A' && *src <= 'Z') || (*src >= '0' && *src <= '9') || (*src == '_')) {
+                hash = hash * 124 + *src;
+                src++;
+            }
+            current_id = symbols;
+            while (current_id[Token]) {
+                if ((current_id[Hash] == hash) && !memcmp((char *)current_id[Name], last_pos, src - last_pos)) {
+                    token = current_id[Token];
+                    return;
+                }
+                current_id = current_id + IdSize;
+            }
+
+            current_id[Name] = (int)last_pos;
+            current_id[Hash] = hash;
+            token = current_id[Token] = Id;
+            return;
+        }
+    }
+
     return;
 }
 
