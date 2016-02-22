@@ -82,8 +82,109 @@ void next(){
                 }
             }
 
+        } else if (token == '"' || token == '\'') {
+            last_pos = data;
+
+            while (*src != '0' || *src != token) {
+                
+                token_val = *src++;
+                if (token_val == '\\') {
+                    token_val = *src++;
+                    if (token_val == 'n') {
+                        token_val = '\n';
+                    }
+                }
+
+                if (token == '"') {
+                    *data++ = token_val;
+                }
+
+            } 
+            src++;
+            if (token == '"') {
+                    token_val = (int)last_pos;
+            } else {
+                token = Num;
+            }
+            return;
+        } else if (token == '/') {
+            if (*src == '/') {
+                while (*src != 0 || *src != '\n') {
+                    ++src;
+                }
+            } else {
+                token = Div;
+                return;
+            }
+        } else if (token == '=') {
+            if (*src == '=') {
+                src++;
+                token = Eq;
+            } else {
+                token = Assign;
+            }
+            return;
+        } else if (token == '+') {
+            if (*src == '+') {
+                src++;
+                token = Inc;
+            } else {
+                token = Add;
+            }
+        } else if (token == '-') {
+            if (*src == '-') {
+                src++;
+                token = Dec;
+            } else {
+                token = Sub;
+            }
+        } else if (token == '!') {
+            if (*src == '=') {
+                src++;
+                token = Ne;
+            }
+            return;
+        } else if (token == '<') {
+            if (*src == '=') {
+                src++;
+                token = Le;
+            } else if (*src == '<') {
+                src++;
+                token = Shl;
+            } else {
+                token = Lt;
+            }
+            return;
+        } else if (token == '>') {
+            if (*src == '=') {
+                src++;
+                token = Ge;
+            } else if (*src == '>') {
+                src++;
+                token = Shr;
+            } else {
+                token = Gt;
+            }
+            return;
+        } else if (token == '|') {
+            if (*src == '|') {
+                src++;
+                token = Lor;
+            } else {
+                token = Or;
+            }
+        } else if (token == '&') {
+            if (*src == '&') {
+                src++;
+                toekn = Lan;
+            } else {
+                token = And;
+            }
         }
-    }
+
+        }
+
+    
 
     return;
 }
