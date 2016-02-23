@@ -32,6 +32,8 @@ int token_val;
 int *current_id, *symbols;
 enum {Token, Hash, Name, Type, Class, Value, BType, BClass, BValue, IdSize};
 
+enum { CHAR, INT, TR };
+int *idmain;
 void next(){
     char *last_pos;
     int hash;
@@ -180,11 +182,24 @@ void next(){
             } else {
                 token = And;
             }
+        } else if (token == '^') {
+            token = Xor;
+            return;
+        } else if (token == '%') {
+            token = Mod;
+            return;
+        } else if (token == '*') {
+            token = Mul;
+            return;
+        } else if (token == '[') {
+            token = Brak;
+            return;
+        } else if (token == '?') {
+            token = Cond;
+            return;
+        } else if (token == '~' || token == ';' || token == '{' || token == '}' || token == '(' || token == ')' || token == ']' || token == ',' || token == ':')        {
+            return;
         }
-
-        }
-
-    
 
     return;
 }
@@ -287,20 +302,28 @@ int main(int argc, char **argv) {
     memset(stack, 0, poolsize);
     memset(text, 0, poolsize);
     memset(data, 0, poolsize);
-    bp = sp = (int *)((int)stack + poolsize);
-    ax = 0;
 
-    i = 0;
-    text[i++] = IMM;
-    text[i++] = 10;
-    text[i++] = PUSH;
-    text[i++] = IMM;
-    text[i++] = 20;
-    text[i++] = ADD;
-    text[i++] = PUSH;
-    text[i++] = EXIT;
-    pc = text;
-    
+    old_text = text;
+
+    src = "char else enum if int return sizeof while open read close printf malloc memset memcmp exit void main";
+
+    i = Char;
+    while (i <= While) {
+        next();
+        current_id[Token] = i++;
+    }
+
+    i = Open;
+    while (i <= Exit) {
+        next();
+        current_id[Class] = Sys;
+        current_id[Type] = INT;
+        current_id[Value] = i++;
+    }
+
+    next(); current_id[Token] = Char;
+    next(); idmain = current_id;
+
     program();
     return eval();
     
