@@ -324,7 +324,37 @@ int main(int argc, char **argv) {
     next(); current_id[Token] = Char;
     next(); idmain = current_id;
 
+    if (!(src = old_src = malloc(sizeof(poolsize))) {
+            printf("could not malloc(%d) for source area\n", poolsize);
+            return -1;
+    }
+
+    if ((i = read(fd, src, poolsize - 1)) <= 0) {
+        printf("read() can not run\n");
+    }
+
+    src[i] = 0;
+    close(fd);
+
     program();
+
+    if (!(pc = (int *)idmain[Value])) {
+        printf("main() not defined\n");
+        return -1;
+    }
+
+    if (assembly) {
+        return 0;
+    }
+
+    sp = (int *)((int)stack + poolsize);
+    *--sp = EXIT;
+    *--sp = PUSH;
+    tmp = sp;
+    *--sp = argc;
+    *--sp = (int)argv;
+    *--sp = (int)tmp;
+
     return eval();
     
 }
