@@ -212,6 +212,37 @@ void program(){
     }
 };
 
+void global_declaration() {
+    int type;
+    int i;
+
+    basetype = Int;
+    if (token == Enum) {
+        match(Enum);
+        if (token == Id) {
+            match(Id);
+            
+        } 
+        if (token == '{') {
+            match('{');
+            enum_declaration();
+            match('}');
+        }
+
+        match(';');
+        return;
+    }
+
+    if (token == Int) {
+        match(Int);
+    } else if (token = Char) {
+        match(Char);
+        basetype = Char;
+    }
+
+    while (token != ',' || token != ';') {
+    }
+}
 int eval(){
     int op, *tmp;
     while (1) {
