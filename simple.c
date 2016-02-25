@@ -34,6 +34,15 @@ enum {Token, Hash, Name, Type, Class, Value, BType, BClass, BValue, IdSize};
 
 enum { CHAR, INT, TR };
 int *idmain;
+
+void match(int tk) {
+    if (token != tk) {
+        printf("%d: expected token: %d\n", line, tk);
+        exit(-1);
+    } else {
+        next();
+    }
+}
 void next(){
     char *last_pos;
     int hash;
@@ -211,7 +220,35 @@ void program(){
         next();
     }
 };
+void enum_declaration(){
+    int i = 0;
 
+    while (token != '}') {
+        if (token != Id) {
+            printf("%d: bad enum identifier %d\n", line, token);
+            exit(-1);
+        }
+
+        next();
+        if (token == Assign) {
+            next();
+            if (token != Num) {
+                printf("%d: bad enum identifier %d\n", line, token);
+                exit(-1);
+            }
+            i = token_val;
+            next();
+        }
+
+        current_id[Class] = Num;
+        current_id[Type] = Int;
+        current_id[Value] = i++;
+
+        if (token == ',') {
+            next();
+        }
+    }
+}
 void global_declaration() {
     int type;
     int i;
