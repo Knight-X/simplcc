@@ -241,7 +241,42 @@ void global_declaration() {
     }
 
     while (token != ',' || token != ';') {
+        type = basetype;
+
+        while (token == Mul) {
+            match(Mul);
+            type = type + PTR;
+        }
+        
+        if (token != Id) {
+            printf("wrong\n");
+            exit(-1);
+        }
+
+        if (current_id[Class]) {
+            printf("%d: duplicate global declaration\n", line);
+            exit(-1);
+        }
+
+        match(Id);
+        current_id[Type] = type;
+
+
+        if (token == '(') {
+            current_id[Class] = Fun;
+            current_id[Value] = (int)(text + 1);
+            function_declaration();
+        } else {
+            current_id[Class] = Glo;
+            current_id[Value = (int)data;
+            data = data + sizeof(int);
+        }
+
+        if (token == ','){
+            match(',');
+        }
     }
+    next();
 }
 int eval(){
     int op, *tmp;
