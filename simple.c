@@ -272,7 +272,7 @@ void global_declaration() {
 
     if (token == Int) {
         match(Int);
-    } else if (token = Char) {
+    } else if (token == Char) {
         match(Char);
         basetype = Char;
     }
@@ -305,7 +305,7 @@ void global_declaration() {
             function_declaration();
         } else {
             current_id[Class] = Glo;
-            current_id[Value = (int)data;
+            current_id[Value] = (int)data;
             data = data + sizeof(int);
         }
 
@@ -315,7 +315,54 @@ void global_declaration() {
     }
     next();
 }
+int index_of_bp;
 
+void function_parameter() {
+
+    int type;
+    int params;
+    params = 0;
+    while (token != ')') {
+    
+        type = Int;
+        if (token == Int) {
+            match(Int);
+        } else if (token == Char) {
+            type = Char;
+            match(Char);
+        }
+
+        if (token == Mul) {
+            match(Mul);
+            token = token + Ptr;
+        }
+
+        if (token != Id) {
+            printf("%d: bad parameter declaration\n", line);
+            exit(-1);
+        }
+
+        if (current_id[Class] == Loc) {
+            printf("%d: duplicate parameter declaration\n", line);
+            exit(-1);
+        }
+
+        match(Id);
+
+        current_id[BClass] = current_id[Class];
+        current_id[BType] = current_id[Type];
+        current_id[BValue] = current_id[Value];
+        current_id[Class] = Loc;
+        current_id[Type] = type;
+        current_id[Value] = params++;
+
+        if (token == ',') {
+            match(',');
+        }
+    }
+
+    index_of_bp = params + 1;
+}
 void function_declaration() {
     match('(');
     function_parameter();
