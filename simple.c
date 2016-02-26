@@ -315,6 +315,23 @@ void global_declaration() {
     }
     next();
 }
+
+void function_declaration() {
+    match('(');
+    function_parameter();
+    match(')');
+    function_body();
+
+    current_id = symbols;
+    while (current_id[Token]) {
+        if (current_id[Class] == Loc) {
+            current_id[BClass] = current_id[Class];
+            current_id[BType] = current_id[Type];
+            current_id[BValue] = current_id[Value];
+        }
+        current_id = current_id + Id_size;
+    }
+}
 int eval(){
     int op, *tmp;
     while (1) {
