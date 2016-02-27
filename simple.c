@@ -363,10 +363,61 @@ void function_parameter() {
 
     index_of_bp = params + 1;
 }
+
+void function_body() {
+    int pos_local;
+    int type;
+    pos_local = index_of_bp;
+
+    while (token == Int || token == Char) {
+        basetype = (token == Int) ? Int : Char;
+
+        match(token);
+        while (token != ';') {
+            type = basetype;
+            if (token == Mul) {
+                match(Mul);
+                type = type + PTR;
+            }
+            if (Token != Id) {
+                printf("wrong code\n");
+                exit(-1);
+            }
+
+            if (current_id[Class] == Loc) {
+                printf("wrong code\n");
+                exit(-1);
+            }
+            match(Id);
+
+            current_id[BClass] = current_id[Class];
+            current_id[BType] = current_id[Type];
+            current_id[BValue] = current_id[Value];
+            current_id[Class] = Loc;
+            current_id[BType] = type;
+            current_id[BValue] = ++pos_local;
+
+            if (token == ',') {
+                match(',');
+            }
+        }
+        match(';');
+    }
+
+    *++text = ENT;
+    *++text = pos_local - index_of_bp;
+    
+    while (token != '}') {
+        statement();
+    }
+
+    *++text = LEV;
+}
 void function_declaration() {
     match('(');
     function_parameter();
     match(')');
+    match('{');
     function_body();
 
     current_id = symbols;
