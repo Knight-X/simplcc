@@ -212,7 +212,35 @@ void next(){
 
     return;
 }
+void statement() {
+    int *a, *b;
+    
+    if (token == If) {
+       match(If);
+       match('(');
+       expression(Assign);
+       match(')');
 
+       *++text = JZ;
+       b = ++text;
+
+       statement();
+
+       if (token == Else) {
+            match(Else);
+
+            *b = (int)(text + 3);
+            *++text = JMP;
+            b = ++text;
+
+            statement();
+       }
+
+       *b = (int)(text + 1);
+
+    }
+    
+}
 void program(){
     next();
     while (token > 0) {
