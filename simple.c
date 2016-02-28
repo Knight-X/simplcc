@@ -238,6 +238,22 @@ void statement() {
 
        *b = (int)(text + 1);
 
+    } else if (token == While) {
+        match(While);
+
+        a = text + 1;
+        match('(');
+        expression();
+        match(')');
+
+        *++text = JZ;
+        b = ++text;
+
+        statemen();
+
+        *++text = JMP;
+        *++text = (int)a;
+        b* = (int)(text + 1);
     }
     
 }
