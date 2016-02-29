@@ -254,6 +254,15 @@ void statement() {
         *++text = JMP;
         *++text = (int)a;
         b* = (int)(text + 1);
+    } else if (token == Return) {
+        match(Return);
+        
+        if (token != ';') {
+            expression(Assign);
+       }
+
+        match(';');
+        *++text = LEV;
     }
     
 }
