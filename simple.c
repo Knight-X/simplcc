@@ -279,6 +279,32 @@ void statement() {
     }
     
 }
+void expression()
+{
+    int *id;
+    int tmp;
+    int *addr;
+    {
+        if (token == Num) {
+            match(Num);
+
+            *++text = IMM;
+            *++text = token_val;
+            expr_type = INT;
+        } else if (token == '"') {
+            match('"');
+
+            *++text = IMM;
+            *++text = token_val;
+
+            if (token == '"') {
+                match('"');
+            }
+            data = (char *)(((int)data + sizeof(int)) & (-sizeof(int)));
+            expr_type = PTR;
+        }
+    }
+}
 void program(){
     next();
     while (token > 0) {
