@@ -263,6 +263,19 @@ void statement() {
 
         match(';');
         *++text = LEV;
+    } else if (token == '{') {
+        match('{');
+
+        if (token != '}') {
+            statement(Assign);
+        }
+
+        match('{');
+    } else if (token == ';') {
+        match(';');
+    } else {
+        expression(Assign);
+        match(';');
     }
     
 }
