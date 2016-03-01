@@ -302,6 +302,30 @@ void expression()
             }
             data = (char *)(((int)data + sizeof(int)) & (-sizeof(int)));
             expr_type = PTR;
+        } else if (token == Sizeof) {
+            match(Sizeof);
+
+            match('(');
+            expr_type = INT;
+
+            if (token == INT) {
+                match(INT);
+            } else if (token == CHAR) {
+                match(CHAR);
+                expr_type = CHAR;
+            }
+
+            while (token == MUL) {
+                match(MUL);
+                expr_type = expr_type + PTR;
+            }
+            
+            match(')');
+
+            *++text = IMM;
+            *++text = (expr_type == CHAR) ? sizeof(char) : sizeof(int);
+            
+            expr_type = INT;
         }
     }
 }
