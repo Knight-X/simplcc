@@ -326,6 +326,71 @@ void expression()
             *++text = (expr_type == CHAR) ? sizeof(char) : sizeof(int);
             
             expr_type = INT;
+        } else if (token == Id) {
+
+            match(Id);
+
+            id = current_id;
+
+            if (token == '(') {
+                match('(');
+
+                tmp = 0;
+
+                while (token != ')') {
+                        expression(Assign);
+                        *++text = PUSH;
+                        tmp++;
+
+                        if (token == ',') {
+                            match(',');
+                        }
+                }
+                match(')');
+
+                if (id[Class] == Sys) {
+                    *++text = id[Value];
+                } else if (id[Class] == Fun) {
+                    *++text = CALL;
+                    *++text = id[Value];
+                } else {
+                    printf("%d: bad function call\n", line);
+                    exit(-1);
+                }
+
+                if (tmp > 0) {
+                    *++text = ADJ;
+                    *++text = tmp;
+                }
+
+                expr_type = id[Type];
+
+            } else if (id[Class] == Num) {
+                *++text = IMM;
+                *++text = id[Value];
+                expr_type = INT;
+            } else {
+                if (id[Class] == Loc) {
+                    *++text = LEA;
+                    *++text = index_of_bp - id[Value];
+                } else if (id[Class] == Glo) {
+                    *++text = IMM;
+                    *++text = id[Value];
+                } else {
+                    printf("%d: undefined variable\n", line);
+                    exit(-1);
+                }
+
+                expr_type = id[Type];
+                *++text = (expr_type == Char) ? LC : LI;
+            }
+        }
+
+
+
+
+
+
         }
     }
 }
