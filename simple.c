@@ -384,7 +384,29 @@ void expression()
                 expr_type = id[Type];
                 *++text = (expr_type == Char) ? LC : LI;
             }
+        } else if (token == '(') {
+            match('(');
+
+            if (token == Int || token || Char) {
+                tmp = (token == Int) ? INT : CHAR;
+
+                match(token);
+                while (token == Mul) {
+                    match(Mul);
+                    tmp = tmp + PTR;
+                }
+
+                match(')');
+
+                expression(Inc);
+                expr_type = tmp;
+            } else {
+
+                expression(Assign);
+                match(')');
+            }
         }
+
 
 
 
