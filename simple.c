@@ -405,13 +405,19 @@ void expression()
                 expression(Assign);
                 match(')');
             }
+        } else if (token == Mul) {
+            match(Mul);
+            expression(Inc);
+
+            if (expr_type >= PTR) {
+                expr_type = expr_type - PTR;
+            } else {
+                printf("%d: bad deference\n", line);
+                exit(-1);
+            }
+
+            *++text = (expr_type == CHAR) ? LC : LI;
         }
-
-
-
-
-
-
 
         }
     }
