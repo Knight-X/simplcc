@@ -432,6 +432,7 @@ void expression()
             expr_type = expr_type + PTR;
         } else if (token == '!') {
             match('!');
+            expression(Inc);
 
             *++text = PUSH;
             *++text = IMM;
@@ -439,7 +440,16 @@ void expression()
             *++text = EQ;
 
             expr_type = Int;
-        }
+        } else if (token == '~') {
+            match('~');
+            expression(Inc);
+
+            *++text = PUSH;
+            *++text = IMM;
+            *++text = -1;
+            *++text = XOR;
+
+            expr_type = Int;
 
     }
 }
