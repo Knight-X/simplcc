@@ -430,6 +430,15 @@ void expression()
             }
 
             expr_type = expr_type + PTR;
+        } else if (token == '!') {
+            match('!');
+
+            *++text = PUSH;
+            *++text = IMM;
+            *++text = 0;
+            *++text = EQ;
+
+            expr_type = Int;
         }
 
     }
