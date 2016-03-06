@@ -488,10 +488,26 @@ void expression()
             *++text = PUSH;
             *++text = IMM;
             
-            *++text = (expr_type > PTR) ? sizeof(int) : sizeof(char);
+            *++text = (expr_type > PTR) ? sizeof(int) : sizeof(char); //他的指標大小應該都是4
             *++text = (tmp == inc) ? ADD : SUB;
             *++text = (expr_type == CHAR) ? SC : SI;
+        }
+    }
+    {
+        while (token >= level) {
+           tmp = expr_type;
+           if (token == Assign) {
+               match(Assign);
+               if (token == LC || token == LI) {
+                   *++text = PUSH;
+               } else {
+                   printf("wrong");
+                   exit(-1);
+               }
+                expression(ASSIGN);
 
+                expr_type = tmp;
+                *++text = (expr_type == CHAR) ? SC : SI;
     }
 }
 void program(){
