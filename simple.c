@@ -470,7 +470,27 @@ void expression()
             }
 
             expr_type = Int;
-        }
+        } else if (token == Inc || token == Dec) {
+            tmp = token;
+            match(token);
+            expression(Inc);
+
+            if (token == LC) {
+                *++text = PUSH;
+                *++text = LC;
+            } else if (token == LI) {
+                *++text = PUSH;
+                *++text = LI;
+            } else {
+                printf("%d: bad lvalue of pre-increment\n", line);
+                exit(-1);
+            }
+            *++text = PUSH;
+            *++text = IMM;
+            
+            *++text = (expr_type > PTR) ? sizeof(int) : sizeof(char);
+            *++text = (tmp == inc) ? ADD : SUB;
+            *++text = (expr_type == CHAR) ? SC : SI;
 
     }
 }
