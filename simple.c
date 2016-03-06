@@ -450,6 +450,27 @@ void expression()
             *++text = XOR;
 
             expr_type = Int;
+        } else if (token == 'Add') {
+            match(Add);
+            expression(Inc);
+            expr_type = Int;
+        } else if (token == 'Sub') {
+            match(Sub);
+
+            if (token == Num) {
+                *++text = IMM;
+                *++text = -token_val;
+                match(Num);
+            } else {
+                *++text = IMM;
+                *++text = -1;
+                *++text = PUSH;
+                expression(Inc);
+                *++text = MUL;
+            }
+
+            expr_type = Int;
+        }
 
     }
 }
