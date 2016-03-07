@@ -504,10 +504,124 @@ void expression()
                    printf("wrong");
                    exit(-1);
                }
-                expression(ASSIGN);
+                expression(Assign);
 
                 expr_type = tmp;
                 *++text = (expr_type == CHAR) ? SC : SI;
+           } else if (token == Cond) {
+               match(Cond);
+               *++text = JZ;
+               addr = ++text;
+               expression(Assign);
+               if (token == ':') {
+                   match(':');
+               } else {
+                   printf("%d: missing colon in codition\n", line);
+                   exit(-1);
+               }
+               *addr = (int)(text + 3);
+               *++text = JMP;
+               addr = ++text;
+               expression(Cond);
+               *addr = (int)(text + 1);
+           } else if (token == Lor) {
+               match(Lor);
+               *++text = JNZ;
+               addr = ++text;
+               expression(Lan);
+                *addr = (int)(text + 1);
+                expr_type = INT;
+           } else if (token == Lan) {
+               match(Lan);
+               *++text = JZ;
+               addr = ++text;
+               expression(Or);
+               *addr = (int)(text + 1);
+               expr_type = INT;
+           } else if (token == Or) {
+               match(Or);
+               *++text = PUSH;
+               expression(Xor);
+               *++text = OR;
+               expr_type = INT;
+           } else if (token == Xor) {
+               match(Xor);
+               *++text = PUSH;
+               expression(And);
+               *++text = XOR;
+               expr_type = INT;
+           } else if (token == And) {
+               match(And);
+               *++text = PUSH;
+               expression(Eq);
+               *++text = AND;
+               expr_type = INT;
+           } else if (token == Eq) {
+               match(Eq);
+               *++text = PUSH;
+               expression(Ne);
+               *++text = EQ;
+               expr_type = INT;
+           } else if (token == Ne) {
+               match(Ne);
+               *++text = PUSH;
+               expression(Lt);
+               *++text = NE;
+               expr_type = INT;
+           } else if (token == Lt) {
+               match(Lt);
+               *++text = PUSH;
+               expression(Shl);
+               expr_type = INT;
+           } else if (token == Gt) {
+               match(Gt);
+               *++text = PUSH;
+               expression(Shl);
+               expr_type = INT;
+           } else if (token == Le) {
+               match(Le);
+               *++text = PUSH;
+               expression(Shl);
+               *++text = LE;
+               expr_type = INT;
+          } else if (token == Ge) {
+              match(Ge);
+              *++text = PUSH;
+              expression(Shl);
+              *++text = GE;
+              expr_type = INT;
+          } else if (token == Shl) {
+              match(Shl);
+              *++text = PUSH;
+              expression(Add);
+              *++text = Shl;
+              expr_type = INT;
+          } else if (token == Shr) {
+              match(Shr);
+              *++text = PUSH;
+              expression(Add);
+              *++text = Shr;
+              expr_type = INT;
+          } else if (token == Add) {
+              match(Add);
+              *++text = PUSH;
+              expression(Mul);
+
+              expr_type = tmp;
+              if (expr_type > PTR) {
+                  *++text = PUSH;
+                  *++text = IMM;
+                  *++text = sizeof(int);
+                  *++text = MUL;
+              }
+              *++text = ADD;
+          }
+
+
+
+
+
+
     }
 }
 void program(){
