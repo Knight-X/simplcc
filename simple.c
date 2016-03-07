@@ -488,7 +488,7 @@ void expression()
             *++text = PUSH;
             *++text = IMM;
             
-            *++text = (expr_type > PTR) ? sizeof(int) : sizeof(char); //他的指標大小應該都是4
+            *++text = (expr_type > PTR) ? sizeof(int) : sizeof(char); //bigger than PTR means that it is the int ptr, and the char * is just equal to PTR
             *++text = (tmp == inc) ? ADD : SUB;
             *++text = (expr_type == CHAR) ? SC : SI;
         }
@@ -615,8 +615,29 @@ void expression()
                   *++text = MUL;
               }
               *++text = ADD;
-          }
+          } else if (token == Sub) {
+              match(Sub);
+              *++text = PUSH;
+              expression(Mul);
 
+              if (tmp > PTR && tmp == expr_type) {
+                  *++text = SUB;
+                  *++text = PUSH;
+                  *++text = IMM;
+                  *++text = sizeof(int);
+                  *++text = DIV;
+                  expr_type = INT;
+              } else if (tmp > PTR) {
+                  *++text = PUSH;
+                  *++text = IMM;
+                  *++text = sizeof(int);
+                  *++text = MUL;
+                  expr_type = tmp;
+              } else {
+                  *++text = SUB;
+                  expr_type = tmp;
+              } 
+          }
 
 
 
