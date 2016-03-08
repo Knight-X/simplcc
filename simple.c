@@ -655,7 +655,29 @@ void expression()
               expression(Inc);
               *++text = MOD;
               expr_type = tmp;
-          } 
+          } else if (token == Inc || token == Dec) {
+              if (*text == LI) {
+                  *text = PUSH;
+                  *++text = LI;
+              } else if (*text == LC) {
+                  *text = PUSH;
+                  *++text = LC;
+              } else {
+                  printf("%d: bad value in increment\n", line);
+                  exit(-1);
+              } 
+
+              *++text = PUSH;
+              *++text = IMM;
+              *++text = (expr_type > PTR) ? sizeof(int) : sizeof(char);
+              *++text = (token == Inc) ? ADD : SUB;
+              *++text = (expr_type == CHAR) ? SC : SI;
+              *++text = PUSH;
+              *++text = IMM;
+              *++text = (expr_type > PTR) ? sizeof(int) : sizeof(char);
+              *++text = (token == Inc) ? SUB : ADD;
+              match(token);
+          }
 
 
 
