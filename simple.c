@@ -637,7 +637,25 @@ void expression()
                   *++text = SUB;
                   expr_type = tmp;
               } 
-          }
+          } else if (token == Mul) {
+              match(Mul);
+              *++text = PUSH;
+              expression(Inc);
+              *++text = MUL;
+              expr_type = tmp;
+          } else if (token == Div) {
+              match(Div);
+              *++text = PUSH;
+              expression(Inc);
+              *++text = DIV;
+              expr_type = tmp;
+          } else if (token == Mod) {
+              match(Mod);
+              *++text = PUSH;
+              expression(Inc);
+              *++text = MOD;
+              expr_type = tmp;
+          } 
 
 
 
