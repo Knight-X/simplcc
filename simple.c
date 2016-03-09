@@ -45,11 +45,14 @@ void next(){
                 printf("%d: %.*s", line, src-old_src, old_src);
                 old_src = src;
                 while (old_text < text) {
-                printf("%8.4s", &"LEA, IMM, JMP, CALL, JZ, JNZ, ENT, ADJ, LEV, LI, LC, SI, SC, PUSH, OR, XOR, AND, EQ, NE, LT, GT, LE, GE, SHL, SHR, ADD, SUB, MUL, DIV, MOD, OPEN, READ, CLOS, PRTF, MALC, MSET, MCMP, EXIT"[*++old_text * 5]);
+                printf("%8.4s", & "LEA ,IMM ,JMP ,CALL,JZ  ,JNZ ,ENT ,ADJ ,LEV ,LI  ,LC  ,SI  ,SC  ,PUSH," 
+                        "OR  ,XOR ,AND ,EQ  ,NE  ,LT  ,GT  ,LE  ,GE  ,SHL ,SHR ,ADD ,SUB ,MUL ,DIV ,MOD ,"
+                        "OPEN,READ,CLOS,PRTF,MALC,MSET,MCMP,EXIT"[*++old_text * 5]);
                 if (*old_text <= ADJ) 
                     printf("%d\n", *++old_text);
                 else 
                     printf("\n");
+
                 }
             ++line;
         } else if (token == '#'){
