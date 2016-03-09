@@ -3,28 +3,21 @@
 #include <memory.h>
 #include <string.h>
 
+int index_of_bp;
+int debug;
+int assembly;
 int token;
 char *src, *old_src;
 int poolsize;
-int line;
+int line, token_val;
 int *text,
     *old_text,
     *stack;
 char *data;
 int *pc, *bp, *sp, ax, cycle;
-
-struct identifier {
-    int token;
-    int hash;
-    char *name;
-    int class;
-    int type;
-    int value;
-    int Bclass;
-    int Btype;
-    int Bvalue;
-}
-enum { Num = 128, Fun, Sys, Glo, Loc, Id, Char, Else, Enum, If, Int, Returu, Sizeof, While, Assign, Cond, Lor, Lan, Or, Xor, And, Eq, Ne, Lt, Gt, Le, Ge, Shl, Shr, Add, Sub, Mul, Div, Mod, Inc, Dec, Brak};
+int *idmain;
+int basetype, expr_type;
+enum { Num = 128, Fun, Sys, Glo, Loc, Id, Char, Else, Enum, If, Int, Return, Sizeof, While, Assign, Cond, Lor, Lan, Or, Xor, And, Eq, Ne, Lt, Gt, Le, Ge, Shl, Shr, Add, Sub, Mul, Div, Mod, Inc, Dec, Brak};
 
 enum { LEA, IMM, JMP, CALL, JZ, JNZ, ENT, ADJ, LEV, LI, LC, SI, SC, PUSH, OR, XOR, AND, EQ, NE, LT, GT, LE, GE, SHL, SHR, ADD, SUB, MUL, DIV, MOD, OPEN, READ, CLOS, PRTF, MALC, MSET, MCMP, EXIT};
 
@@ -32,9 +25,9 @@ int token_val;
 int *current_id, *symbols;
 enum {Token, Hash, Name, Type, Class, Value, BType, BClass, BValue, IdSize};
 
-enum { CHAR, INT, TR };
+enum { CHAR, INT, PTR };
 int *idmain;
-
+enum {Global, Local};
 void match(int tk) {
     if (token != tk) {
         printf("%d: expected token: %d\n", line, tk);
@@ -58,7 +51,7 @@ void next(){
             hash = token;
             last_pos = src - 1;
             while ((*src >= 'a' && *src <= 'z') || (*src >= 'A' && *src <= 'Z') || (*src >= '0' && *src <= '9') || (*src == '_')) {
-                hash = hash * 124 + *src;
+                hash = hash * 147 + *src;
                 src++;
             }
             current_id = symbols;
@@ -187,7 +180,7 @@ void next(){
         } else if (token == '&') {
             if (*src == '&') {
                 src++;
-                toekn = Lan;
+                token = Lan;
             } else {
                 token = And;
             }
@@ -209,8 +202,7 @@ void next(){
         } else if (token == '~' || token == ';' || token == '{' || token == '}' || token == '(' || token == ')' || token == ']' || token == ',' || token == ':')        {
             return;
         }
-
-    return;
+    }
 }
 void statement() {
     int *a, *b;
@@ -249,11 +241,11 @@ void statement() {
         *++text = JZ;
         b = ++text;
 
-        statemen();
+        statement();
 
         *++text = JMP;
         *++text = (int)a;
-        b* = (int)(text + 1);
+        *b = (int)(text + 1);
     } else if (token == Return) {
         match(Return);
         
@@ -279,7 +271,7 @@ void statement() {
     }
     
 }
-void expression()
+void expression(int level)
 {
     int *id;
     int tmp;
@@ -489,7 +481,7 @@ void expression()
             *++text = IMM;
             
             *++text = (expr_type > PTR) ? sizeof(int) : sizeof(char); //bigger than PTR means that it is the int ptr, and the char * is just equal to PTR
-            *++text = (tmp == inc) ? ADD : SUB;
+            *++text = (tmp == Inc) ? ADD : SUB;
             *++text = (expr_type == CHAR) ? SC : SI;
         }
     }
@@ -498,10 +490,10 @@ void expression()
            tmp = expr_type;
            if (token == Assign) {
                match(Assign);
-               if (token == LC || token == LI) {
+               if (*text == LC || *text == LI) {
                    *++text = PUSH;
                } else {
-                   printf("wrong");
+                   printf("%d: bad lvalue in assignment\n", line);
                    exit(-1);
                }
                 expression(Assign);
@@ -677,22 +669,38 @@ void expression()
               *++text = (expr_type > PTR) ? sizeof(int) : sizeof(char);
               *++text = (token == Inc) ? SUB : ADD;
               match(token);
+          } else if (token == Brak) {
+              match(Brak);
+              *++text = PUSH;
+              expression(Assign);
+              match(']');
+
+              if (tmp > PTR) {
+                  *++text = PUSH;
+                  *++text = IMM;
+                  *++text = sizeof(int);
+                  *++text = MUL;
+              } else if (token < PTR) {
+                  printf("%d: pointer type expected\n", line);
+                  exit(-1);
+              }
+
+              expr_type = tmp - PTR;
+              *++text = ADD;
+              *++text = (expr_type == CHAR) ? LC : LI;
+          } else {
+              printf("%d: compiler error, token=%d\n", line, token);
+              exit(-1);
           }
-
-
-
-
-
+    }
     }
 }
 void program(){
     next();
     while (token > 0) {
-        printf("token is: %c\n", token);
-        next();
+        global_declaration();
     }
-};
-void enum_declaration(){
+}; void enum_declaration(){
     int i = 0;
 
     while (token != '}') {
@@ -787,7 +795,6 @@ void global_declaration() {
     }
     next();
 }
-int index_of_bp;
 
 void function_parameter() {
 
@@ -806,7 +813,7 @@ void function_parameter() {
 
         if (token == Mul) {
             match(Mul);
-            token = token + Ptr;
+            token = token + PTR;
         }
 
         if (token != Id) {
@@ -851,13 +858,13 @@ void function_body() {
                 match(Mul);
                 type = type + PTR;
             }
-            if (Token != Id) {
-                printf("wrong code\n");
+            if (token != Id) {
+                printf("%d: bad local declaration\n", line);
                 exit(-1);
             }
 
             if (current_id[Class] == Loc) {
-                printf("wrong code\n");
+                printf("%d: duplicate local declaration\n", line);
                 exit(-1);
             }
             match(Id);
@@ -899,7 +906,7 @@ void function_declaration() {
             current_id[BType] = current_id[Type];
             current_id[BValue] = current_id[Value];
         }
-        current_id = current_id + Id_size;
+        current_id = current_id + IdSize;
     }
 }
 int eval(){
@@ -954,9 +961,22 @@ int eval(){
 
 int main(int argc, char **argv) {
     int i, fd;
-
+    int *tmp;
     argc--;
     argv++;
+
+    if (argc > 0 && **argv == '-' && (*argv)[1] == 's') {
+        assembly = 1;
+        --argc;
+        ++argv;
+    }
+
+    if (argc > 0 && **argv == '-' && (*argv)[1] == 'd') {
+        debug = 1;
+        --argc;
+        ++argv;
+    }
+
 
     poolsize = 256 * 1024;
     line = 1;
@@ -966,16 +986,7 @@ int main(int argc, char **argv) {
     }
 
     
-    if (!(src = old_src = malloc(poolsize))) {
-        printf("could not malloc(%d) for source area\n", poolsize);
-        return -1;
-    }
-
-    if ((i = read(fd, src, poolsize - 1)) <= 0) {
-        printf("read() returned %d\n", i);
-        return -1;
-    }
-    if (!(text = old_text = malloc(poolsize))) {
+    if (!(text = malloc(poolsize))) {
         printf("could not malloc(%d) for text area\n", poolsize);
         return -1;
     }
@@ -989,10 +1000,15 @@ int main(int argc, char **argv) {
         return -1;
     }
 
+    if (!(symbols = malloc(poolsize))) {
+        printf("could not malloc(%d) for symbol table\n", poolsize);
+        return -1;
+    }
+
     memset(stack, 0, poolsize);
     memset(text, 0, poolsize);
     memset(data, 0, poolsize);
-
+    memset(symbols, 0 , poolsize);
     old_text = text;
 
     src = "char else enum if int return sizeof while open read close printf malloc memset memcmp exit void main";
@@ -1003,8 +1019,8 @@ int main(int argc, char **argv) {
         current_id[Token] = i++;
     }
 
-    i = Open;
-    while (i <= Exit) {
+    i = OPEN;
+    while (i <= EXIT) {
         next();
         current_id[Class] = Sys;
         current_id[Type] = INT;
@@ -1014,13 +1030,13 @@ int main(int argc, char **argv) {
     next(); current_id[Token] = Char;
     next(); idmain = current_id;
 
-    if (!(src = old_src = malloc(sizeof(poolsize))) {
+    if (!(src = old_src = malloc(sizeof(poolsize)))) {
             printf("could not malloc(%d) for source area\n", poolsize);
             return -1;
     }
 
     if ((i = read(fd, src, poolsize - 1)) <= 0) {
-        printf("read() can not run\n");
+        printf("read() returned %d\n", i);
     }
 
     src[i] = 0;
