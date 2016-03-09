@@ -70,26 +70,31 @@ void next(){
         } else if (token >= '0' && token <= '9') {
             token_val = token - '0';
 
-            if (token_val >= '0') {
+            if (token_val > 0) {
                 while (*src >= '0' && *src <= '9') {
                     token_val = token_val * 10 + *src++ - '0';
                 }
-            } else if (*src == 'x' || *src == 'X') { 
-                token = *src++;
-                while ((token >= '0' && token <= '9') || (token >= 'a' && token <= 'f') || (token >= 'A' && token <= 'F')) {
-                    token_val = token_val * 16 + (token & 15) + (token >= 'A' ? 9 : 0); // take個位數開始
-                    token = *++src;
-                }
             } else {
-                while (*src >= '0' && *src <= '7') {
-                    token_val = token_val * 8 + *src++ - '0';
+                else if (*src == 'x' || *src == 'X') { 
+                    token = *src++;
+                    while ((token >= '0' && token <= '9') || (token >= 'a' && token <= 'f') || (token >= 'A' && token <= 'F')) {
+                        token_val = token_val * 16 + (token & 15) + (token >= 'A' ? 9 : 0); // take個位數開始
+                        token = *++src;
+                    }
+                } else {
+                    while (*src >= '0' && *src <= '7') {
+                        token_val = token_val * 8 + *src++ - '0';
+                    }
                 }
             }
+
+            token = Num;
+            return;
 
         } else if (token == '"' || token == '\'') {
             last_pos = data;
 
-            while (*src != '0' || *src != token) {
+            while (*src != '0' && *src != token) {
                 
                 token_val = *src++;
                 if (token_val == '\\') {
@@ -113,7 +118,7 @@ void next(){
             return;
         } else if (token == '/') {
             if (*src == '/') {
-                while (*src != 0 || *src != '\n') {
+                while (*src != 0 && *src != '\n') {
                     ++src;
                 }
             } else {
@@ -235,7 +240,7 @@ void statement() {
 
         a = text + 1;
         match('(');
-        expression();
+        expression(Assign);
         match(')');
 
         *++text = JZ;
@@ -259,10 +264,10 @@ void statement() {
         match('{');
 
         if (token != '}') {
-            statement(Assign);
+            statement();
         }
 
-        match('{');
+        match('}');
     } else if (token == ';') {
         match(';');
     } else {
