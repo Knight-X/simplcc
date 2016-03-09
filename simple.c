@@ -75,7 +75,7 @@ void next(){
                     token_val = token_val * 10 + *src++ - '0';
                 }
             } else {
-                else if (*src == 'x' || *src == 'X') { 
+                if (*src == 'x' || *src == 'X') { 
                     token = *src++;
                     while ((token >= '0' && token <= '9') || (token >= 'a' && token <= 'f') || (token >= 'A' && token <= 'F')) {
                         token_val = token_val * 16 + (token & 15) + (token >= 'A' ? 9 : 0); // take個位數開始
@@ -762,7 +762,7 @@ void global_declaration() {
         basetype = Char;
     }
 
-    while (token != ',' || token != ';') {
+    while (token != ';' || token != '}') {
         type = basetype;
 
         while (token == Mul) {
@@ -771,7 +771,7 @@ void global_declaration() {
         }
         
         if (token != Id) {
-            printf("wrong\n");
+            printf("%d: bad global declaration\n", line);
             exit(-1);
         }
 
