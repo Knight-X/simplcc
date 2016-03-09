@@ -762,7 +762,7 @@ void global_declaration() {
         basetype = Char;
     }
 
-    while (token != ';' || token != '}') {
+    while (token != ';' && token != '}') {
         type = basetype;
 
         while (token == Mul) {
